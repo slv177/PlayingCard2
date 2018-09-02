@@ -11,11 +11,23 @@ import UIKit
 @IBDesignable
 class PlayingCardView: UIView {
     @IBInspectable
-    var rank: Int = 12 { didSet {setNeedsDisplay()}}
+    var rank: Int = 7 { didSet{setNeedsDisplay()}}
     @IBInspectable
     var suit: String = "♠️" { didSet {setNeedsDisplay()}}
     @IBInspectable
     var isFaceUp: Bool = true { didSet {setNeedsDisplay()}}
+    var faceCardScale: CGFloat = SizeRatio.faceCardImageSizeToBoundsSize { didSet { setNeedsDisplay()}}
+    
+    @objc func adjustFaceCardScale(byHandlingGestureRecognizedBy recognizer:
+        UIPinchGestureRecognizer) {
+        switch  recognizer.state {
+        case .changed, .ended:
+            faceCardScale *= recognizer.scale
+            recognizer.scale = 1.0
+        default:
+            break
+        }
+    }
 
     private func centeredAttributedString(_ string: String, fontSize: CGFloat) -> NSAttributedString {
         var font = UIFont.preferredFont(forTextStyle: .body).withSize(fontSize)
@@ -45,7 +57,9 @@ class PlayingCardView: UIView {
         addSubview(label)
         return label
     }
-        
+    
+
+    
     override func draw(_ rect: CGRect) {
         let roundedRect = UIBezierPath(roundedRect: bounds, cornerRadius: cornerRadius)
         roundedRect.addClip()
@@ -56,7 +70,7 @@ class PlayingCardView: UIView {
                                            in: Bundle(for: self.classForCoder),
                                            compatibleWith: traitCollection) {
                 faceCardImage.draw(in: bounds.zoom(by:
-                                    SizeRatio.faceCardImageSizeToBoundsSize))
+                                    faceCardScale ))
             } else {
                 drawPips()
             }
